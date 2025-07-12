@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import Auth from "./components/Auth";
 import Planner from "./components/Planner";
 import storage from "./utils/storage";
+import Footer from "./components/Footer";
 
 const App = () => {
 	const [user, setUser] = useState(null);
@@ -54,6 +55,7 @@ const App = () => {
 	return (
 		<div className="App">
 			{user ? <Planner user={user} onLogout={handleLogout} /> : <Auth onLogin={handleLogin} />}
+			<Footer />
 		</div>
 	);
 };
