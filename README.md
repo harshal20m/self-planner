@@ -69,10 +69,6 @@ Visit: [http://localhost:5173](http://localhost:5173)
 -   **Lucide Icons** (lightweight icons)
 -   **LocalStorage** (for persistent auth and planner data)
 
-## 📸 Screenshots
-
-_You can optionally add screenshots here to show planner view, auth page, and history section._
-
 ## 📌 Roadmap / Future Ideas
 
 -   🔔 Notifications for upcoming tasks
