@@ -1,9 +1,9 @@
-// src/components/TimeSlot.jsx
-
 import React, { useState } from "react";
 import { Clock, Plus, Trash2, Check, Edit } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext"; // Import useTheme
 
 const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
+	const { theme } = useTheme(); // Use the theme hook
 	const [isEditingTime, setIsEditingTime] = useState(false);
 	const [timeText, setTimeText] = useState(time);
 	const [newSubtask, setNewSubtask] = useState("");
@@ -58,16 +58,18 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 	};
 
 	return (
-		<div className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+		<div
+			className={`${theme.colors.cardBg} rounded-lg ${theme.colors.border} p-4 ${theme.colors.shadowHover} transition-shadow`}
+		>
 			<div className="flex items-center justify-between mb-3">
 				<div className="flex items-center space-x-2 flex-1">
-					<Clock className="w-4 h-4 text-gray-500" />
+					<Clock className={`w-4 h-4 ${theme.colors.textMuted}`} />
 					{isEditingTime ? (
 						<input
 							type="text"
 							value={timeText}
 							onChange={(e) => setTimeText(e.target.value)}
-							className="font-medium text-gray-700 bg-gray-50 px-2 py-1 rounded border focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 flex-1"
+							className={`font-medium ${theme.colors.text} ${theme.colors.inputBg} px-2 py-1 rounded border ${theme.colors.borderInput} focus:ring-2 ${theme.colors.ring} focus:border-transparent flex-1`}
 							onBlur={handleSaveTime}
 							onKeyDown={(e) => {
 								if (e.key === "Enter") handleSaveTime();
@@ -80,7 +82,7 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 						/>
 					) : (
 						<span
-							className="font-medium text-gray-700 cursor-pointer hover:text-indigo-600 flex-1"
+							className={`font-medium ${theme.colors.text} cursor-pointer ${theme.colors.primaryTextHover} flex-1`}
 							onClick={() => setIsEditingTime(true)}
 							title="Click to edit time"
 						>
@@ -91,7 +93,7 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 				<div className="flex items-center space-x-1">
 					<button
 						onClick={() => onDeleteTask(time)}
-						className="text-gray-400 hover:text-red-600 p-1 hover:bg-red-50 rounded"
+						className={`${theme.colors.textLight} hover:text-red-600 p-1 hover:bg-red-50 rounded`}
 						title="Delete time slot"
 					>
 						<Trash2 className="w-4 h-4" />
@@ -107,8 +109,8 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 								onClick={() => handleToggleDone(index)}
 								className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
 									subtask.done
-										? "bg-green-500 border-green-500 text-white"
-										: "border-gray-300 hover:border-green-500"
+										? `${theme.colors.success} text-white border-transparent`
+										: `${theme.colors.borderInput} ${theme.colors.hoverBg} hover:border-green-500`
 								}`}
 							>
 								{subtask.done && <Check className="w-3 h-3" />}
@@ -118,12 +120,12 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 								value={subtask.text}
 								onChange={(e) => handleEditText(index, e.target.value)}
 								className={`flex-1 text-sm border-0 bg-transparent focus:outline-none ${
-									subtask.done ? "line-through text-gray-500" : "text-gray-800"
+									subtask.done ? `line-through ${theme.colors.textMuted}` : `${theme.colors.text}`
 								}`}
 							/>
 							<button
 								onClick={() => handleDeleteSubtask(index)}
-								className="text-gray-400 hover:text-red-500 p-1 rounded"
+								className={`${theme.colors.textLight} hover:text-red-500 p-1 rounded`}
 								title="Delete subtask"
 							>
 								<Trash2 className="w-4 h-4" />
@@ -132,7 +134,7 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 					))}
 				</div>
 			) : (
-				<div className="text-gray-400 text-sm mb-3">No tasks scheduled</div>
+				<div className={`${theme.colors.textLight} text-sm mb-3`}>No tasks scheduled</div>
 			)}
 
 			<div className="flex items-center space-x-2">
@@ -144,11 +146,11 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 						if (e.key === "Enter") handleAddSubtask();
 					}}
 					placeholder="Add new subtask..."
-					className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+					className={`flex-1 px-3 py-2 border ${theme.colors.borderInput} rounded-lg text-sm focus:ring-2 ${theme.colors.ring} focus:border-transparent ${theme.colors.inputBg} ${theme.colors.text}`}
 				/>
 				<button
 					onClick={handleAddSubtask}
-					className="text-indigo-600 hover:text-indigo-800 p-2 rounded-lg hover:bg-indigo-50"
+					className={`${theme.colors.primaryText} ${theme.colors.primaryTextHover} p-2 rounded-lg ${theme.colors.hoverBg}`}
 					title="Add subtask"
 				>
 					<Plus className="w-4 h-4" />

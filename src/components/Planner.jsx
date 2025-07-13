@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { Calendar, LogOut, History } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
+import ThemeSelector from "./ThemeSelector";
 import TimeSlot from "./TimeSlot";
 import AddTimeSlot from "./AddTimeSlot";
 import HistoryView from "./History";
@@ -9,6 +11,7 @@ import storage from "../utils/storage";
 import { parseTimeForSorting } from "../utils/timeUtils";
 
 const Planner = ({ user, onLogout }) => {
+	const { theme } = useTheme();
 	const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
 	const [tasks, setTasks] = useState({});
 	const [view, setView] = useState("today");
@@ -98,17 +101,21 @@ const Planner = ({ user, onLogout }) => {
 	const stats = todayStats();
 
 	return (
-		<div className="min-h-screen bg-gray-50">
-			<div className="bg-white shadow-sm border-b">
+		<div className={`min-h-screen ${theme.colors.background}`}>
+			<div
+				className={`${theme.colors.backgroundSecondary} ${theme.colors.shadow} border-b ${theme.colors.border}`}
+			>
 				<div className="max-w-6xl mx-auto px-4 py-4">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center space-x-4">
-							<div className="bg-indigo-100 rounded-full w-10 h-10 flex items-center justify-center">
-								<Calendar className="w-5 h-5 text-indigo-600" />
+							<div
+								className={`${theme.colors.primaryLight} rounded-full w-10 h-10 flex items-center justify-center`}
+							>
+								<Calendar className={`w-5 h-5 ${theme.colors.primaryText}`} />
 							</div>
 							<div>
-								<h1 className="text-2xl font-bold text-gray-800">Day Planner</h1>
-								<p className="text-gray-600">Welcome back, {user.email}</p>
+								<h1 className={`text-2xl font-bold ${theme.colors.text}`}>Day Planner</h1>
+								<p className={theme.colors.textSecondary}>Welcome back, {user.email}</p>
 							</div>
 						</div>
 						<div className="flex items-center space-x-4">
@@ -116,8 +123,8 @@ const Planner = ({ user, onLogout }) => {
 								onClick={() => setView("today")}
 								className={`px-4 py-2 rounded-lg font-medium transition-colors ${
 									view === "today"
-										? "bg-indigo-600 text-white"
-										: "text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+										? `${theme.colors.primary} text-white`
+										: `${theme.colors.textSecondary} ${theme.colors.primaryTextHover} ${theme.colors.hoverBg}`
 								}`}
 							>
 								Today
@@ -126,16 +133,18 @@ const Planner = ({ user, onLogout }) => {
 								onClick={() => setView("history")}
 								className={`px-4 py-2 rounded-lg font-medium transition-colors ${
 									view === "history"
-										? "bg-indigo-600 text-white"
-										: "text-gray-600 hover:text-indigo-600 hover:bg-indigo-50"
+										? `${theme.colors.primary} text-white`
+										: `${theme.colors.textSecondary} ${theme.colors.primaryTextHover} ${theme.colors.hoverBg}`
 								}`}
 							>
 								<History className="w-4 h-4 inline mr-2" />
 								History
 							</button>
+							<ThemeSelector />
 							<button
+								title="Logout"
 								onClick={onLogout}
-								className="text-gray-600 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors"
+								className={`${theme.colors.textSecondary} hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors`}
 							>
 								<LogOut className="w-5 h-5" />
 							</button>
@@ -150,10 +159,10 @@ const Planner = ({ user, onLogout }) => {
 						<div className="mb-6">
 							<div className="flex items-center justify-between mb-4">
 								<div>
-									<h2 className="text-xl font-semibold text-gray-800">
+									<h2 className={`text-xl font-semibold ${theme.colors.text}`}>
 										{currentDate === new Date().toISOString().split("T")[0] ? "Today" : currentDate}
 									</h2>
-									<p className="text-gray-600">
+									<p className={theme.colors.textSecondary}>
 										{stats.completed} of {stats.total} tasks completed
 									</p>
 								</div>
@@ -161,14 +170,14 @@ const Planner = ({ user, onLogout }) => {
 									type="date"
 									value={currentDate}
 									onChange={(e) => setCurrentDate(e.target.value)}
-									className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+									className={`px-3 py-2 border ${theme.colors.borderInput} ${theme.colors.inputBg} ${theme.colors.text} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent`}
 								/>
 							</div>
 
 							{stats.total > 0 && (
-								<div className="bg-gray-200 rounded-full h-2 mb-6">
+								<div className={`${theme.colors.progressBg} rounded-full h-2 mb-6`}>
 									<div
-										className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+										className={`${theme.colors.progressFill} h-2 rounded-full transition-all duration-300`}
 										style={{ width: `${(stats.completed / stats.total) * 100}%` }}
 									></div>
 								</div>

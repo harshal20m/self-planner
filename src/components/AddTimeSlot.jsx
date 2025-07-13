@@ -1,9 +1,9 @@
-// src/components/AddTimeSlot.jsx
-
 import React, { useState } from "react";
 import { Clock, Plus } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext"; // Import useTheme
 
 const AddTimeSlot = ({ onAddTimeSlot }) => {
+	const { theme } = useTheme(); // Use the theme hook
 	const [showForm, setShowForm] = useState(false);
 	const [timeSlot, setTimeSlot] = useState("");
 	const [timeFrom, setTimeFrom] = useState("");
@@ -31,10 +31,12 @@ const AddTimeSlot = ({ onAddTimeSlot }) => {
 
 	if (!showForm) {
 		return (
-			<div className="bg-white rounded-lg border-2 border-dashed border-gray-300 p-6 text-center hover:border-indigo-400 transition-colors">
+			<div
+				className={`${theme.colors.cardBg} rounded-lg border-2 border-dashed ${theme.colors.borderInput} p-6 text-center hover:${theme.colors.borderHover} transition-colors`}
+			>
 				<button
 					onClick={() => setShowForm(true)}
-					className="flex items-center justify-center space-x-2 w-full text-gray-600 hover:text-indigo-600 transition-colors"
+					className={`flex items-center justify-center space-x-2 w-full ${theme.colors.textSecondary} ${theme.colors.primaryTextHover} transition-colors`}
 				>
 					<Plus className="w-5 h-5" />
 					<span className="font-medium">Add Time Slot</span>
@@ -44,43 +46,47 @@ const AddTimeSlot = ({ onAddTimeSlot }) => {
 	}
 
 	return (
-		<div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+		<div className={`${theme.colors.cardBg} rounded-lg ${theme.colors.border} p-4 ${theme.colors.shadow}`}>
 			<div className="space-y-4">
 				<div className="flex items-center space-x-2 mb-4">
-					<Clock className="w-4 h-4 text-indigo-600" />
-					<span className="font-medium text-gray-700">New Time Slot</span>
+					<Clock className={`w-4 h-4 ${theme.colors.primaryText}`} />
+					<span className={`font-medium ${theme.colors.text}`}>New Time Slot</span>
 				</div>
 
 				{/* Structured Input */}
 				<div className="space-y-3">
 					<div>
-						<label className="block text-sm font-medium text-gray-700 mb-1">Plan Name</label>
+						<label className={`block text-sm font-medium ${theme.colors.textSecondary} mb-1`}>
+							Plan Name
+						</label>
 						<input
 							type="text"
 							value={planName}
 							onChange={(e) => setPlanName(e.target.value)}
 							placeholder="e.g., Morning Study, Lunch Break"
-							className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+							className={`w-full px-3 py-2 border ${theme.colors.borderInput} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent ${theme.colors.inputBg} ${theme.colors.text}`}
 						/>
 					</div>
 
 					<div className="grid grid-cols-2 gap-3">
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">From</label>
+							<label className={`block text-sm font-medium ${theme.colors.textSecondary} mb-1`}>
+								From
+							</label>
 							<input
 								type="time"
 								value={timeFrom}
 								onChange={(e) => setTimeFrom(e.target.value)}
-								className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+								className={`w-full px-3 py-2 border ${theme.colors.borderInput} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent ${theme.colors.inputBg} ${theme.colors.text}`}
 							/>
 						</div>
 						<div>
-							<label className="block text-sm font-medium text-gray-700 mb-1">To</label>
+							<label className={`block text-sm font-medium ${theme.colors.textSecondary} mb-1`}>To</label>
 							<input
 								type="time"
 								value={timeTo}
 								onChange={(e) => setTimeTo(e.target.value)}
-								className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+								className={`w-full px-3 py-2 border ${theme.colors.borderInput} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent ${theme.colors.inputBg} ${theme.colors.text}`}
 							/>
 						</div>
 					</div>
@@ -88,33 +94,35 @@ const AddTimeSlot = ({ onAddTimeSlot }) => {
 
 				{/* OR divider */}
 				<div className="flex items-center space-x-3">
-					<div className="flex-1 h-px bg-gray-300"></div>
-					<span className="text-sm text-gray-500">OR</span>
-					<div className="flex-1 h-px bg-gray-300"></div>
+					<div className={`flex-1 h-px ${theme.colors.borderInput}`}></div>
+					<span className={`text-sm ${theme.colors.textMuted}`}>OR</span>
+					<div className={`flex-1 h-px ${theme.colors.borderInput}`}></div>
 				</div>
 
 				{/* Free text input */}
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-1">Custom Time Slot</label>
+					<label className={`block text-sm font-medium ${theme.colors.textSecondary} mb-1`}>
+						Custom Time Slot
+					</label>
 					<input
 						type="text"
 						value={timeSlot}
 						onChange={(e) => setTimeSlot(e.target.value)}
 						placeholder="e.g., 2:30 PM, Evening Walk"
-						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+						className={`w-full px-3 py-2 border ${theme.colors.borderInput} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent ${theme.colors.inputBg} ${theme.colors.text}`}
 					/>
 				</div>
 
 				<div className="flex space-x-2 pt-2">
 					<button
 						onClick={handleSubmit}
-						className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition-colors"
+						className={`${theme.colors.primary} text-white px-4 py-2 rounded-lg text-sm ${theme.colors.primaryHover} transition-colors`}
 					>
 						Add Time Slot
 					</button>
 					<button
 						onClick={resetForm}
-						className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm hover:bg-gray-400 transition-colors"
+						className={`${theme.colors.progressBg} ${theme.colors.textSecondary} px-4 py-2 rounded-lg text-sm hover:${theme.colors.borderInput} transition-colors`}
 					>
 						Cancel
 					</button>

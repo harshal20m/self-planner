@@ -1,17 +1,20 @@
-// src/components/Footer.jsx
-
 import React from "react";
+import { useTheme } from "../contexts/ThemeContext"; // Import useTheme
 
 const Footer = () => {
+	const { theme } = useTheme(); // Use the theme hook
+
 	return (
-		<footer className="mt-10 border-t pt-6 pb-6 text-center text-sm text-gray-500">
+		<footer
+			className={` border-t ${theme.colors.border} pt-6 pb-6 ${theme.colors.background} font-bold text-center text-sm ${theme.colors.textMuted}`}
+		>
 			<p>
-				Made with ❤️ by{" "}
+				Made with 💖 by{" "}
 				<a
 					href="https://harshalmali.online"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-indigo-600 hover:underline"
+					className={`${theme.colors.primaryText} ${theme.colors.primaryTextHover} hover:underline`}
 				>
 					&lt; HM /&gt;
 				</a>

@@ -69,4 +69,28 @@ const storage = {
 	},
 };
 
+const logCurrentUserData = () => {
+	const user = storage.getCurrentUser();
+	if (!user) {
+		console.log("No user logged in.");
+		return;
+	}
+
+	const allDates = storage.getAllPlannerDates(user.id);
+	const plannerData = allDates.reduce((acc, date) => {
+		const dayData = storage.getPlannerData(user.id, date);
+		acc[date] = dayData;
+		return acc;
+	}, {});
+
+	const fullUserData = {
+		user,
+		planner: plannerData,
+	};
+
+	console.log("Full User JSON (for server sync):", JSON.stringify(fullUserData, null, 2));
+	console.log(fullUserData);
+};
+logCurrentUserData();
+
 export default storage;
