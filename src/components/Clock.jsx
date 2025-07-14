@@ -30,10 +30,7 @@ const Clock = () => {
 	}, []);
 
 	return (
-		<div
-			className={`text-center flex items-baseline justify-center gap-1 ${theme.colors.text}`}
-			style={{ fontFamily: '"Gloria Hallelujah", cursive' }}
-		>
+		<div className={`text-center flex items-baseline justify-center gap-1 ${theme.colors.text}`}>
 			<span className="text-3xl">{timeParts.hour}</span>
 			<span className="text-2xl">:{timeParts.min}</span>
 			<span className="text-xs">:{timeParts.sec}</span>
