@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import storage from "../utils/storage";
-import { Settings, Loader2 } from "lucide-react"; // Loader2 is a spinning icon from lucide
+import { Settings, Loader2 } from "lucide-react";
+import { useTheme } from "../contexts/ThemeContext";
 
 const SyncControls = ({ onPlannerLoad }) => {
+	const { theme } = useTheme();
 	const [open, setOpen] = useState(false);
 	const [canSync, setCanSync] = useState(true);
 	const [timeLeft, setTimeLeft] = useState(0);
@@ -11,25 +13,22 @@ const SyncControls = ({ onPlannerLoad }) => {
 
 	const SYNC_INTERVAL = 60 * 60 * 1000; // 1 hour in ms
 
-	// Initial check on server health and sync cooldown
-	useEffect(() => {
-		// Spin up server
-		const pingServer = async () => {
-			try {
-				const res = await fetch("https://self-planner-backend.onrender.com/api/health");
-				if (res.ok) {
-					setIsServerReady(true);
-				} else {
-					throw new Error("Health check failed");
-				}
-			} catch (err) {
-				console.warn("Server not ready, retrying...");
-				setTimeout(pingServer, 3000); // Retry every 3 sec
+	const pingServer = async () => {
+		try {
+			const res = await fetch("https://self-planner-backend.onrender.com/api/health");
+			if (res.ok) {
+				setIsServerReady(true);
+			} else {
+				throw new Error("Health check failed");
 			}
-		};
-		pingServer();
+		} catch {
+			console.warn("Server not ready, retrying in 3s...");
+			setTimeout(pingServer, 3000);
+		}
+	};
 
-		// Sync cooldown
+	useEffect(() => {
+		pingServer();
 		const last = parseInt(localStorage.getItem("lastSyncTime") || "0", 10);
 		const now = Date.now();
 		const remaining = SYNC_INTERVAL - (now - last);
@@ -39,7 +38,6 @@ const SyncControls = ({ onPlannerLoad }) => {
 		}
 	}, []);
 
-	// Timer countdown
 	useEffect(() => {
 		if (!canSync && timeLeft > 0) {
 			const interval = setInterval(() => {
@@ -56,7 +54,6 @@ const SyncControls = ({ onPlannerLoad }) => {
 		}
 	}, [canSync, timeLeft]);
 
-	// Close dropdown when clicking outside
 	useEffect(() => {
 		const handleClickOutside = (e) => {
 			if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -72,7 +69,6 @@ const SyncControls = ({ onPlannerLoad }) => {
 			alert(`Please wait ${Math.ceil(timeLeft / 60)} more minutes to sync.`);
 			return;
 		}
-
 		const user = storage.getCurrentUser();
 		if (!user) return alert("No user logged in.");
 
@@ -119,6 +115,7 @@ const SyncControls = ({ onPlannerLoad }) => {
 
 			alert("Planner loaded from server.");
 			if (onPlannerLoad) onPlannerLoad();
+			window.location.reload();
 		} catch (error) {
 			console.error("Load Error:", error);
 			alert("Failed to load planner.");
@@ -134,26 +131,36 @@ const SyncControls = ({ onPlannerLoad }) => {
 	return (
 		<div className="relative inline-block text-left" ref={menuRef}>
 			<button
-				onClick={() => setOpen((prev) => !prev)}
-				className="p-2 rounded-full bg-gray-800 text-white hover:bg-gray-700"
-				title={isServerReady ? "Settings" : "Waking up server..."}
-				disabled={!isServerReady}
+				onClick={() => {
+					setOpen((prev) => !prev);
+					if (!isServerReady) pingServer();
+				}}
+				className={`p-2 rounded-full transition-colors ${theme.colors.backgroundSecondary} ${theme.colors.shadow} ${theme.colors.text} hover:opacity-90`}
+				title={isServerReady ? "Sync Settings" : "Waking up server..."}
+				disabled={!isServerReady && !open}
 			>
 				{isServerReady ? <Settings size={20} /> : <Loader2 size={20} className="animate-spin" />}
 			</button>
 
 			{open && (
-				<div className="absolute right-0 mt-2 w-56 bg-white rounded shadow-lg border z-50">
+				<div
+					className={`absolute right-0 mt-2 w-56 rounded-lg shadow-lg border z-50 ${theme.colors.background} ${theme.colors.border}`}
+				>
 					<button
 						onClick={handleSync}
-						className={`block w-full text-left px-4 py-2 ${
-							canSync ? "hover:bg-green-100" : "text-gray-400 cursor-not-allowed"
+						className={`block w-full text-left px-4 py-2 rounded-t-lg ${
+							canSync
+								? `hover:${theme.colors.hoverBg} ${theme.colors.text}`
+								: `cursor-not-allowed ${theme.colors.textSecondary}`
 						}`}
 						disabled={!canSync}
 					>
 						{canSync ? "Save in Server" : `Wait: ${formatTime(timeLeft)}`}
 					</button>
-					<button onClick={handleLoad} className="block w-full text-left px-4 py-2 hover:bg-blue-100">
+					<button
+						onClick={handleLoad}
+						className={`block w-full text-left px-4 py-2 rounded-b-lg hover:${theme.colors.hoverBg} ${theme.colors.text}`}
+					>
 						Load from Server
 					</button>
 				</div>
