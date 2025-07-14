@@ -1,5 +1,6 @@
-# 🗓️ Self Planner – A Day-wise Task Management App
-[Visit Self Planner](https://self-planner-v1.netlify.app/)
+# 🗓️ Self Planner – A Day-wise Task Management App <a href="https://self-planner-v1.netlify.app/" target="_blank" rel="noopener noreferrer">Live Site</a>
+
+
 
 
 A fully client-side React planner that allows users to create, manage, and track tasks for specific time slots in a day — all without any backend. Includes local authentication, editable plans, history tracking, and multiple tasks per slot.
