@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Clock, Plus, Trash2, Check, Edit } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext"; // Import useTheme
+import { convertTo12HourFormat } from "../utils/timeUtils";
 
 const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 	const { theme } = useTheme(); // Use the theme hook
@@ -86,7 +87,7 @@ const TimeSlot = ({ time, task, onUpdateTask, onDeleteTask, onEditTime }) => {
 							onClick={() => setIsEditingTime(true)}
 							title="Click to edit time"
 						>
-							{time}
+							{convertTo12HourFormat(time)}
 						</span>
 					)}
 				</div>
