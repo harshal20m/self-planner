@@ -10,6 +10,7 @@ import HistoryView from "./History";
 import storage from "../utils/storage";
 import { parseTimeForSorting } from "../utils/timeUtils";
 import SyncControls from "./SyncControls";
+import Clock from "./Clock";
 
 const Planner = ({ user, onLogout }) => {
 	const { theme } = useTheme();
@@ -108,23 +109,37 @@ const Planner = ({ user, onLogout }) => {
 			>
 				<div className="max-w-6xl mx-auto px-4 py-4">
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-						{/* Left: Icon + Heading + Description */}
-						<div className="flex justify-center items-center gap-3">
-							<div
-								className={`${theme.colors.primaryLight} rounded-full w-10 h-10 flex items-center justify-center shrink-0`}
-							>
-								<Calendar className={`w-5 h-5 ${theme.colors.primaryText}`} />
+						{/* Left Section (title + welcome + clock for mobile) */}
+						<div className="flex justify-between sm:flex-row sm:items-center gap-2 sm:gap-6">
+							<div className="flex items-center gap-3">
+								<div
+									className={`${theme.colors.primaryLight} rounded-full w-10 h-10 flex items-center justify-center shrink-0`}
+								>
+									<Calendar className={`w-5 h-5 ${theme.colors.primaryText}`} />
+								</div>
+								<div className="text-left">
+									<h1 className={`text-xl sm:text-2xl font-bold ${theme.colors.text}`}>
+										Day Planner
+									</h1>
+									<p className={`text-sm sm:text-base ${theme.colors.textSecondary}`}>
+										Welcome back, {user.email}
+									</p>
+								</div>
 							</div>
-							<div className="text-left">
-								<h1 className={`text-xl sm:text-2xl font-bold ${theme.colors.text}`}>Day Planner</h1>
-								<p className={`text-sm sm:text-base ${theme.colors.textSecondary}`}>
-									Welcome back, {user.email}
-								</p>
+
+							{/* Clock (mobile view) */}
+							<div className="sm:hidden mt-1">
+								<Clock />
 							</div>
 						</div>
 
-						{/* Right: Action Buttons */}
-						<div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2">
+						{/* Right Section: Clock (desktop) + Action Buttons */}
+						<div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2 mt-2 sm:mt-0">
+							{/* Clock (desktop only) */}
+							<div className="hidden sm:block mr-2">
+								<Clock />
+							</div>
+
 							<button
 								onClick={() => setView("today")}
 								className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
@@ -204,6 +219,8 @@ const Planner = ({ user, onLogout }) => {
 							))}
 							<AddTimeSlot onAddTimeSlot={handleAddTimeSlot} />
 						</div>
+
+						<div className="flex justify-center my-6"></div>
 					</>
 				) : (
 					<HistoryView userId={user.id} />
