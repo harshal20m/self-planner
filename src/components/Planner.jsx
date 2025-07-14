@@ -106,22 +106,27 @@ const Planner = ({ user, onLogout }) => {
 				className={`${theme.colors.backgroundSecondary} ${theme.colors.shadow} border-b ${theme.colors.border}`}
 			>
 				<div className="max-w-6xl mx-auto px-4 py-4">
-					<div className="flex items-center justify-between">
-						<div className="flex items-center space-x-4">
+					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+						{/* Left: Icon + Heading + Description */}
+						<div className="flex justify-center items-center gap-3">
 							<div
-								className={`${theme.colors.primaryLight} rounded-full w-10 h-10 flex items-center justify-center`}
+								className={`${theme.colors.primaryLight} rounded-full w-10 h-10 flex items-center justify-center shrink-0`}
 							>
 								<Calendar className={`w-5 h-5 ${theme.colors.primaryText}`} />
 							</div>
-							<div>
-								<h1 className={`text-2xl font-bold ${theme.colors.text}`}>Day Planner</h1>
-								<p className={theme.colors.textSecondary}>Welcome back, {user.email}</p>
+							<div className="text-left">
+								<h1 className={`text-xl sm:text-2xl font-bold ${theme.colors.text}`}>Day Planner</h1>
+								<p className={`text-sm sm:text-base ${theme.colors.textSecondary}`}>
+									Welcome back, {user.email}
+								</p>
 							</div>
 						</div>
-						<div className="flex items-center space-x-4">
+
+						{/* Right: Action Buttons */}
+						<div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2">
 							<button
 								onClick={() => setView("today")}
-								className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+								className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
 									view === "today"
 										? `${theme.colors.primary} text-white`
 										: `${theme.colors.textSecondary} ${theme.colors.primaryTextHover} ${theme.colors.hoverBg}`
@@ -131,20 +136,20 @@ const Planner = ({ user, onLogout }) => {
 							</button>
 							<button
 								onClick={() => setView("history")}
-								className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+								className={`px-4 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base flex items-center ${
 									view === "history"
 										? `${theme.colors.primary} text-white`
 										: `${theme.colors.textSecondary} ${theme.colors.primaryTextHover} ${theme.colors.hoverBg}`
 								}`}
 							>
-								<History className="w-4 h-4 inline mr-2" />
+								<History className="w-4 h-4 mr-1" />
 								History
 							</button>
 							<ThemeSelector />
 							<button
 								title="Logout"
 								onClick={onLogout}
-								className={`${theme.colors.textSecondary} hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors`}
+								className={`text-sm sm:text-base ${theme.colors.textSecondary} hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition-colors`}
 							>
 								<LogOut className="w-5 h-5" />
 							</button>
