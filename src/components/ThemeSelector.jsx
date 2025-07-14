@@ -13,6 +13,7 @@ const ThemeSelector = () => {
 		dark: "bg-gradient-to-r from-gray-900 to-indigo-900",
 		goldish: "bg-gradient-to-r from-yellow-50 to-amber-100",
 		blueish: "bg-gradient-to-r from-blue-50 to-cyan-100",
+		pinkish: "bg-gradient-to-r from-pink-50 to-rose-100",
 		midnight: "bg-gradient-to-r from-slate-900 to-purple-900",
 	};
 

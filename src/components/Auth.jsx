@@ -1,7 +1,7 @@
 // src/components/Auth.jsx
 
-import React, { useState } from "react";
-import { Calendar } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Calendar, User } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import ThemeSelector from "./ThemeSelector";
 import storage from "../utils/storage";
@@ -12,6 +12,13 @@ const Auth = ({ onLogin }) => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
+	const [existingUsers, setExistingUsers] = useState([]);
+	const [selectedUser, setSelectedUser] = useState(null);
+
+	useEffect(() => {
+		const users = storage.getUsers();
+		setExistingUsers(users);
+	}, []);
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
@@ -31,21 +38,34 @@ const Auth = ({ onLogin }) => {
 				setError("Invalid email or password");
 			}
 		} else {
-			const existingUsers = storage.getUsers();
 			if (existingUsers.find((u) => u.email === email)) {
 				setError("Email already exists");
 				return;
 			}
-			const newUser = storage.saveUser({ email, password, createdAt: new Date().toISOString() });
+			const newUser = storage.saveUser({
+				email,
+				password,
+				createdAt: new Date().toISOString(),
+			});
 			storage.setCurrentUser(newUser);
 			onLogin(newUser);
 		}
 	};
 
+	const handleSelectUser = (user) => {
+		setSelectedUser(user);
+		setEmail(user.email);
+	};
+
+	const clearSelectedUser = () => {
+		setSelectedUser(null);
+		setEmail("");
+		setPassword("");
+	};
+
 	return (
 		<div className={`min-h-screen ${theme.colors.backgroundGradient} flex items-center justify-center p-4`}>
 			<div className={`${theme.colors.backgroundSecondary} rounded-2xl shadow-xl p-8 w-full max-w-md relative`}>
-				{/* Theme Selector */}
 				<div className="absolute top-4 right-4">
 					<ThemeSelector />
 				</div>
@@ -60,6 +80,25 @@ const Auth = ({ onLogin }) => {
 					<p className={theme.colors.textSecondary}>Organize your day, achieve your goals</p>
 				</div>
 
+				{/* Show existing users if logging in and user not yet selected */}
+				{isLogin && !selectedUser && existingUsers.length > 0 && (
+					<div className="mb-6">
+						<p className={`mb-2 text-sm font-semibold ${theme.colors.text}`}>Select Existing User:</p>
+						<div className="grid grid-cols-2 gap-3">
+							{existingUsers.map((user) => (
+								<button
+									key={user.id}
+									onClick={() => handleSelectUser(user)}
+									className={`flex items-center gap-2 px-3 py-2 border ${theme.colors.borderInput} rounded-lg ${theme.colors.inputBg} ${theme.colors.text} hover:shadow-md transition`}
+								>
+									<User className="w-4 h-4" />
+									<span className="truncate text-sm">{user.email}</span>
+								</button>
+							))}
+						</div>
+					</div>
+				)}
+
 				<div className="space-y-6">
 					<div>
 						<label className={`block text-sm font-medium ${theme.colors.text} mb-2`}>Email</label>
@@ -67,10 +106,20 @@ const Auth = ({ onLogin }) => {
 							type="email"
 							value={email}
 							onChange={(e) => setEmail(e.target.value)}
-							className={`w-full px-4 py-3 border ${theme.colors.borderInput} ${theme.colors.inputBg} ${theme.colors.text} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent transition-colors`}
+							disabled={!!selectedUser}
+							className={`w-full px-4 py-3 border ${theme.colors.borderInput} ${theme.colors.inputBg} ${theme.colors.text} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent transition-colors disabled:opacity-60`}
 							placeholder="Enter your email"
-							onKeyPress={(e) => e.key === "Enter" && handleSubmit(e)}
+							onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
 						/>
+						{selectedUser && (
+							<button
+								type="button"
+								onClick={clearSelectedUser}
+								className={`mt-1 text-xs underline ${theme.colors.primaryTextHover}`}
+							>
+								Choose a different user
+							</button>
+						)}
 					</div>
 
 					<div>
@@ -81,7 +130,7 @@ const Auth = ({ onLogin }) => {
 							onChange={(e) => setPassword(e.target.value)}
 							className={`w-full px-4 py-3 border ${theme.colors.borderInput} ${theme.colors.inputBg} ${theme.colors.text} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent transition-colors`}
 							placeholder="Enter your password"
-							onKeyPress={(e) => e.key === "Enter" && handleSubmit(e)}
+							onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
 						/>
 					</div>
 
@@ -97,7 +146,10 @@ const Auth = ({ onLogin }) => {
 					<div className="text-center">
 						<button
 							type="button"
-							onClick={() => setIsLogin(!isLogin)}
+							onClick={() => {
+								setIsLogin(!isLogin);
+								clearSelectedUser();
+							}}
 							className={`${theme.colors.primaryText} ${theme.colors.primaryTextHover} font-medium`}
 						>
 							{isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
