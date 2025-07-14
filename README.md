@@ -1,4 +1,4 @@
-# 🗓️ Self Planner – A Day-wise Task Management App <a href="https://self-planner-v1.netlify.app/" target="_blank" rel="noopener noreferrer">Live Site</a>
+# 🗓️ Self Planner – A Day-wise Task Management App <a href="https://self-planner-v1.netlify.app/" target="_blank">Live Site</a>
 
 
 
