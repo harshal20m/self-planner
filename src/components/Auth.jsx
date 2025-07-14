@@ -20,7 +20,7 @@ const Auth = ({ onLogin }) => {
 		setExistingUsers(users);
 	}, []);
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
 
@@ -30,14 +30,34 @@ const Auth = ({ onLogin }) => {
 		}
 
 		if (isLogin) {
+			// Step 1: Try to login from backend
+			try {
+				const res = await fetch("https://self-planner-backend.onrender.com/api/login", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ email, password }),
+				});
+
+				if (res.ok) {
+					const user = await res.json();
+					storage.setCurrentUser(user);
+					onLogin(user);
+					return;
+				}
+			} catch (err) {
+				console.warn("Backend login failed, falling back to localStorage...");
+			}
+
+			// Step 2: Fallback to localStorage
 			const user = storage.findUser(email, password);
 			if (user) {
 				storage.setCurrentUser(user);
 				onLogin(user);
 			} else {
-				setError("Invalid email or password");
+				setError("Invalid email or password (not found in backend or local)");
 			}
 		} else {
+			// Signup remains local-only for now
 			if (existingUsers.find((u) => u.email === email)) {
 				setError("Email already exists");
 				return;

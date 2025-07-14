@@ -9,6 +9,7 @@ import AddTimeSlot from "./AddTimeSlot";
 import HistoryView from "./History";
 import storage from "../utils/storage";
 import { parseTimeForSorting } from "../utils/timeUtils";
+import SyncControls from "./SyncControls";
 
 const Planner = ({ user, onLogout }) => {
 	const { theme } = useTheme();
@@ -146,6 +147,7 @@ const Planner = ({ user, onLogout }) => {
 								History
 							</button>
 							<ThemeSelector />
+							<SyncControls />
 							<button
 								title="Logout"
 								onClick={onLogout}
