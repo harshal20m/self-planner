@@ -72,7 +72,7 @@ Visit: [http://localhost:5173](http://localhost:5173)
 -   **Lucide Icons** (lightweight icons)
 -   **LocalStorage** (for persistent auth and planner data)
 
-## 📌 Roadmap / Future Ideas
+## 📌 Roadmap / Future Ideas ( Feel Free to Contribute )
 
 -   🔔 Notifications for upcoming tasks
 -   🗃️ Export history to CSV/JSON
