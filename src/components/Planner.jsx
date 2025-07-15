@@ -44,18 +44,6 @@ const Planner = ({ user, onLogout }) => {
 		storage.savePlannerData(user.id, currentDate, data);
 	};
 
-	const handleAddTask = (time, subtaskText) => {
-		const existing = tasks[time]?.subtasks || [];
-		const newTasks = {
-			...tasks,
-			[time]: {
-				subtasks: [...existing, { text: subtaskText, done: false, createdAt: new Date().toISOString() }],
-			},
-		};
-		setTasks(newTasks);
-		saveTasksToStorage(newTasks);
-	};
-
 	const handleUpdateTask = (time, updatedTask) => {
 		const newTasks = {
 			...tasks,

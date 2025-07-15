@@ -1,7 +1,7 @@
 // src/components/Auth.jsx
 
 import React, { useEffect, useState } from "react";
-import { Calendar, User } from "lucide-react";
+import { Calendar, User, Loader2 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import ThemeSelector from "./ThemeSelector";
 import storage from "../utils/storage";
@@ -14,6 +14,7 @@ const Auth = ({ onLogin }) => {
 	const [error, setError] = useState("");
 	const [existingUsers, setExistingUsers] = useState([]);
 	const [selectedUser, setSelectedUser] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		const users = storage.getUsers();
@@ -23,14 +24,15 @@ const Auth = ({ onLogin }) => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		setError("");
+		setLoading(true);
 
 		if (!email || !password) {
 			setError("Please fill in all fields");
+			setLoading(false);
 			return;
 		}
 
 		if (isLogin) {
-			// Step 1: Try to login from backend
 			try {
 				const res = await fetch("https://self-planner-backend.onrender.com/api/login", {
 					method: "POST",
@@ -45,10 +47,9 @@ const Auth = ({ onLogin }) => {
 					return;
 				}
 			} catch (err) {
-				console.warn("Backend login failed, falling back to localStorage...");
+				console.warn("Backend login failed, falling back to localStorage...", err);
 			}
 
-			// Step 2: Fallback to localStorage
 			const user = storage.findUser(email, password);
 			if (user) {
 				storage.setCurrentUser(user);
@@ -57,9 +58,9 @@ const Auth = ({ onLogin }) => {
 				setError("Invalid email or password (not found in backend or local)");
 			}
 		} else {
-			// Signup remains local-only for now
 			if (existingUsers.find((u) => u.email === email)) {
 				setError("Email already exists");
+				setLoading(false);
 				return;
 			}
 			const newUser = storage.saveUser({
@@ -70,6 +71,8 @@ const Auth = ({ onLogin }) => {
 			storage.setCurrentUser(newUser);
 			onLogin(newUser);
 		}
+
+		setLoading(false);
 	};
 
 	const handleSelectUser = (user) => {
@@ -100,7 +103,6 @@ const Auth = ({ onLogin }) => {
 					<p className={theme.colors.textSecondary}>Organize your day, achieve your goals</p>
 				</div>
 
-				{/* Show existing users if logging in and user not yet selected */}
 				{isLogin && !selectedUser && existingUsers.length > 0 && (
 					<div className="mb-6">
 						<p className={`mb-2 text-sm font-semibold ${theme.colors.text}`}>Select Existing User:</p>
@@ -158,8 +160,16 @@ const Auth = ({ onLogin }) => {
 
 					<button
 						onClick={handleSubmit}
-						className={`w-full ${theme.colors.primary} text-white py-3 px-4 rounded-lg font-medium ${theme.colors.primaryHover} transition-colors focus:ring-2 ${theme.colors.ring} focus:ring-offset-2`}
+						disabled={loading}
+						className={`w-full flex items-center justify-center gap-2 ${
+							theme.colors.primary
+						} text-white py-3 px-4 rounded-lg font-medium ${
+							theme.colors.primaryHover
+						} transition-colors focus:ring-2 ${theme.colors.ring} focus:ring-offset-2 ${
+							loading ? "opacity-70 cursor-not-allowed" : ""
+						}`}
 					>
+						{loading && <Loader2 className="w-5 h-5 animate-spin" />}
 						{isLogin ? "Sign In" : "Sign Up"}
 					</button>
 
