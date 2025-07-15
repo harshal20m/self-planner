@@ -1,7 +1,7 @@
 // src/components/Auth.jsx
 
 import React, { useEffect, useState } from "react";
-import { Calendar, User, Loader2 } from "lucide-react";
+import { Calendar, User, Loader2, Trash2 } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
 import ThemeSelector from "./ThemeSelector";
 import storage from "../utils/storage";
@@ -42,6 +42,18 @@ const Auth = ({ onLogin }) => {
 
 				if (res.ok) {
 					const user = await res.json();
+
+					// Ensure 'id' exists before storing locally
+					if (!user.id) {
+						user.id = Date.now().toString();
+					}
+
+					// Save to localStorage if not already present
+					const existing = storage.getUsers().find((u) => u.email === user.email);
+					if (!existing) {
+						storage.saveUser(user);
+					}
+
 					storage.setCurrentUser(user);
 					onLogin(user);
 					return;
@@ -85,6 +97,18 @@ const Auth = ({ onLogin }) => {
 		setEmail("");
 		setPassword("");
 	};
+	const handleRemoveUser = (userId) => {
+		const confirmed = window.confirm("Are you sure you want to remove this user?");
+		if (!confirmed) return;
+
+		storage.removeUser(userId);
+		setExistingUsers(storage.getUsers());
+
+		// Also reset selection if the selected user is removed
+		if (selectedUser?.id === userId) {
+			clearSelectedUser();
+		}
+	};
 
 	return (
 		<div className={`min-h-screen ${theme.colors.backgroundGradient} flex items-center justify-center p-4`}>
@@ -108,14 +132,24 @@ const Auth = ({ onLogin }) => {
 						<p className={`mb-2 text-sm font-semibold ${theme.colors.text}`}>Select Existing User:</p>
 						<div className="grid grid-cols-2 gap-3">
 							{existingUsers.map((user) => (
-								<button
+								<div
 									key={user.id}
-									onClick={() => handleSelectUser(user)}
-									className={`flex items-center gap-2 px-3 py-2 border ${theme.colors.borderInput} rounded-lg ${theme.colors.inputBg} ${theme.colors.text} hover:shadow-md transition`}
+									className={`flex items-center justify-between gap-2 px-3 py-2 border ${theme.colors.borderInput} rounded-lg ${theme.colors.inputBg} ${theme.colors.text}`}
 								>
-									<User className="w-4 h-4" />
-									<span className="truncate text-sm">{user.email}</span>
-								</button>
+									<button
+										onClick={() => handleSelectUser(user)}
+										className="flex items-center gap-2 flex-grow text-left hover:underline"
+									>
+										<User className="w-4 h-4" />
+										<span className="truncate text-sm">{user.email}</span>
+									</button>
+									<button
+										onClick={() => handleRemoveUser(user.id)}
+										className="text-xs text-red-500 hover:pointer"
+									>
+										<Trash2 size={16} />
+									</button>
+								</div>
 							))}
 						</div>
 					</div>

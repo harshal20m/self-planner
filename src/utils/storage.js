@@ -72,6 +72,16 @@ const storage = {
 		const prefix = `planner-${userId}-`;
 		return allKeys.filter((key) => key.startsWith(prefix)).map((key) => key.replace(prefix, ""));
 	},
+	removeUser: (userId) => {
+		const users = storage.getUsers().filter((u) => u.id !== userId);
+		localStorage.setItem("planner-users", JSON.stringify(users));
+
+		// If the removed user was the current user, clear them
+		const currentUser = storage.getCurrentUser();
+		if (currentUser?.id === userId) {
+			storage.clearCurrentUser();
+		}
+	},
 };
 
 export default storage;
