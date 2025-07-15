@@ -1,5 +1,3 @@
-// src/components/Planner.jsx
-
 import React, { useEffect, useState } from "react";
 import { Calendar, LogOut, History } from "lucide-react";
 import { useTheme } from "../contexts/ThemeContext";
@@ -18,12 +16,26 @@ const Planner = ({ user, onLogout }) => {
 	const [tasks, setTasks] = useState({});
 	const [view, setView] = useState("today");
 
+	const [showUsePreviousModal, setShowUsePreviousModal] = useState(false);
+	const [availableDates, setAvailableDates] = useState([]);
+
 	const defaultTimeSlots = ["Morning Study (6:00 AM - 8:00 AM)"];
 
 	useEffect(() => {
 		const data = storage.getPlannerData(user.id, currentDate);
 		setTasks(data.tasks || {});
 	}, [currentDate, user.id]);
+
+	useEffect(() => {
+		if (showUsePreviousModal) {
+			const allDates = storage.getPlannerDates(user.id);
+			const pastDates = allDates
+				.filter((d) => d < currentDate)
+				.sort((a, b) => new Date(b) - new Date(a)) // sort descending
+				.slice(0, 7); // take last 7
+			setAvailableDates(pastDates);
+		}
+	}, [showUsePreviousModal, currentDate, user.id]);
 
 	const saveTasksToStorage = (newTasks) => {
 		const data = storage.getPlannerData(user.id, currentDate);
@@ -83,6 +95,30 @@ const Planner = ({ user, onLogout }) => {
 		}
 	};
 
+	const handleUsePreviousPlan = (fromDate) => {
+		const prevData = storage.getPlannerData(user.id, fromDate);
+		if (!prevData?.tasks) return;
+
+		const mergedTasks = { ...tasks }; // Start with today's tasks
+
+		for (const [time, oldTask] of Object.entries(prevData.tasks)) {
+			if (!mergedTasks[time]) {
+				// Time slot doesn't exist yet, add it directly
+				mergedTasks[time] = { ...oldTask };
+			} else {
+				// Merge subtasks (avoid duplicate text)
+				const existingSubtasks = mergedTasks[time].subtasks || [];
+				const existingTexts = new Set(existingSubtasks.map((s) => s.text));
+				const newSubtasks = oldTask.subtasks?.filter((s) => !existingTexts.has(s.text)) || [];
+				mergedTasks[time].subtasks = [...existingSubtasks, ...newSubtasks];
+			}
+		}
+
+		setTasks(mergedTasks);
+		saveTasksToStorage(mergedTasks);
+		setShowUsePreviousModal(false);
+	};
+
 	const allTimeSlots = [
 		...defaultTimeSlots,
 		...Object.keys(tasks).filter((time) => !defaultTimeSlots.includes(time)),
@@ -109,7 +145,6 @@ const Planner = ({ user, onLogout }) => {
 			>
 				<div className="max-w-6xl mx-auto px-4 py-4">
 					<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-						{/* Left Section (title + welcome + clock for mobile) */}
 						<div className="flex justify-between sm:flex-row sm:items-center gap-2 sm:gap-6">
 							<div className="flex items-center gap-3">
 								<div
@@ -127,15 +162,12 @@ const Planner = ({ user, onLogout }) => {
 								</div>
 							</div>
 
-							{/* Clock (mobile view) */}
 							<div className="sm:hidden mt-1">
 								<Clock />
 							</div>
 						</div>
 
-						{/* Right Section: Clock (desktop) + Action Buttons */}
 						<div className="flex flex-wrap sm:flex-nowrap items-center justify-center sm:justify-end gap-2 mt-2 sm:mt-0">
-							{/* Clock (desktop only) */}
 							<div className="hidden sm:block mr-2">
 								<Clock />
 							</div>
@@ -188,12 +220,14 @@ const Planner = ({ user, onLogout }) => {
 										{stats.completed} of {stats.total} tasks completed
 									</p>
 								</div>
-								<input
-									type="date"
-									value={currentDate}
-									onChange={(e) => setCurrentDate(e.target.value)}
-									className={`px-3 py-2 border ${theme.colors.borderInput} ${theme.colors.inputBg} ${theme.colors.text} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent`}
-								/>
+								<div className="flex gap-2">
+									<input
+										type="date"
+										value={currentDate}
+										onChange={(e) => setCurrentDate(e.target.value)}
+										className={`px-3 py-2 border ${theme.colors.borderInput} ${theme.colors.inputBg} ${theme.colors.text} rounded-lg focus:ring-2 ${theme.colors.ring} focus:border-transparent`}
+									/>
+								</div>
 							</div>
 
 							{stats.total > 0 && (
@@ -218,9 +252,55 @@ const Planner = ({ user, onLogout }) => {
 								/>
 							))}
 							<AddTimeSlot onAddTimeSlot={handleAddTimeSlot} />
+							<div
+								className={`${theme.colors.cardBg} rounded-lg border-2 border-dashed ${theme.colors.borderInput} p-6 text-center hover:${theme.colors.borderHover} transition-colors`}
+							>
+								<button
+									onClick={() => setShowUsePreviousModal(true)}
+									className={`flex items-center justify-center space-x-2 w-full ${theme.colors.textSecondary} ${theme.colors.primaryTextHover} transition-colors`}
+								>
+									Use Previous Plan
+								</button>
+							</div>
 						</div>
 
-						<div className="flex justify-center my-6"></div>
+						{showUsePreviousModal && (
+							<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+								<div
+									className={`p-6 max-w-sm w-full rounded-xl shadow-xl border ${theme.colors.backgroundSecondary} ${theme.colors.border}`}
+								>
+									<h3 className={`text-lg font-semibold mb-4 ${theme.colors.text}`}>
+										Select a previous date
+									</h3>
+
+									{availableDates.length === 0 ? (
+										<p className={theme.colors.textSecondary}>No previous plans found.</p>
+									) : (
+										<ul className="space-y-2 max-h-60 overflow-y-auto">
+											{availableDates.map((date) => (
+												<li key={date}>
+													<button
+														onClick={() => handleUsePreviousPlan(date)}
+														className={`w-full text-left px-4 py-2 rounded-lg transition font-normal ${theme.colors.hoverBg} ${theme.colors.textSecondary} ${theme.colors.primaryTextHover}`}
+													>
+														{date}
+													</button>
+												</li>
+											))}
+										</ul>
+									)}
+
+									<div className="mt-4 flex justify-end">
+										<button
+											onClick={() => setShowUsePreviousModal(false)}
+											className={`text-sm font-medium transition ${theme.colors.textSecondary} ${theme.colors.primaryTextHover}`}
+										>
+											Close
+										</button>
+									</div>
+								</div>
+							</div>
+						)}
 					</>
 				) : (
 					<HistoryView userId={user.id} />

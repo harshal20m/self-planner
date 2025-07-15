@@ -67,6 +67,11 @@ const storage = {
 
 		return { totalTasks, completedTasks, totalDays: dates.length };
 	},
+	getPlannerDates: (userId) => {
+		const allKeys = Object.keys(localStorage);
+		const prefix = `planner-${userId}-`;
+		return allKeys.filter((key) => key.startsWith(prefix)).map((key) => key.replace(prefix, ""));
+	},
 };
 
 const logCurrentUserData = () => {
